@@ -2,3 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+input,
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  box-shadow: 0 0 0px 1000px #166534 inset !important; 
+  -webkit-text-fill-color: white !important; 
+  font-size: 16px !important; 
+  line-height: normal !important;
+  caret-color: white;
+  transition: background-color 9999s ease-in-out 0s;
+  font-family: inherit !important; 
+}

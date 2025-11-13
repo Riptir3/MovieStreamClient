@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Link } from "react-router-dom";
 
 export default function AuthForm({ type, onSubmit, message, clearMessage }) {
   const [formData, setFormData] = useState({
     email: "",
-    password: "",
+    password: ""
   });
 
   const isRegister = type === "register";
@@ -20,10 +21,10 @@ export default function AuthForm({ type, onSubmit, message, clearMessage }) {
   };
 
   return (
-<div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-green-600 via-lime-500 to-emerald-400 px-4">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-green-900 via-gray-900 to-black px-4">
       <form
         onSubmit={handleSubmit}
-        className="backdrop-blur-md bg-white/10 dark:bg-gray-900/40 border border-white/20 dark:border-gray-700 rounded-3xl shadow-xl w-full max-w-md p-10"
+        className="bg-gray-800 p-8 rounded-2xl shadow-lg w-full max-w-md"
       >
         <h2 className="text-3xl font-bold text-white mb-8 text-center">
           {isRegister ? "Create an Account" : "Login"}
@@ -37,7 +38,7 @@ export default function AuthForm({ type, onSubmit, message, clearMessage }) {
             onChange={handleChange}
             value={formData.email}
             required
-            className="w-full px-3 py-2 rounded-lg bg-green-700 text-white focus:outline-none focus:ring-2 focus:ring-green-400"
+            className="w-full px-3 py-2 rounded-lg bg-green-800 text-white text-base placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400"
 />
         </div>
 
@@ -49,7 +50,7 @@ export default function AuthForm({ type, onSubmit, message, clearMessage }) {
             value={formData.password}
             onChange={handleChange}
             required
-            className="w-full px-3 py-2 rounded-lg bg-green-700 text-white focus:outline-none focus:ring-2 focus:ring-green-400"
+            className="w-full px-3 py-2 rounded-lg bg-green-800 text-white text-base placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400"
           />
         </div>
 
@@ -78,6 +79,17 @@ export default function AuthForm({ type, onSubmit, message, clearMessage }) {
         >
           {isRegister ? "Register" : "Login"}
         </button>
+        {!isRegister && (
+          <p className="text-gray-400 text-center mt-4 text-sm">
+            Don’t have an account?{" "}
+            <Link
+              to="/register"
+              className="text-green-400 hover:text-green-300 font-semibold transition-colors"
+            >
+              Create one here
+            </Link>
+          </p>
+        )}
       </form>
     </div>
   );
