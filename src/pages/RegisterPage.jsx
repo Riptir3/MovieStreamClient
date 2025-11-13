@@ -1,21 +1,25 @@
 import { useState } from "react";
 import AuthForm from "../components/AuthForm";
 import { register } from "../services/AuthService";
+import { useNavigate } from "react-router-dom";
 
 export default function RegisterPage() {
-  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
+  const navigate = useNavigate();
 
   const handleRegister = async (data) => {
-    setError("");
     try {
-      await register(data);
-      alert("Registration successful ✅");
+      await register(data.username, data.email,data.password);
+        setMessage("Rigistration successful ✅");
+        setTimeout(() => {
+        navigate("/login");
+      }, 1000);
     } catch (err) {
-      setError(err.message);
+      setMessage(err.message);
     }
   };
 
   return (
-      <AuthForm type="register" onSubmit={handleRegister} error={error} clearError={() => setError("")}/>
+      <AuthForm type="register" onSubmit={handleRegister} message={message} clearMessage={() => setMessage("")}/>
   );
 }

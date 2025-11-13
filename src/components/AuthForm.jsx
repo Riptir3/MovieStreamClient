@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 
 export default function AuthForm({ type, onSubmit, message, clearMessage }) {
   const [formData, setFormData] = useState({
+    username : "",
     email: "",
     password: ""
   });
@@ -30,6 +31,21 @@ export default function AuthForm({ type, onSubmit, message, clearMessage }) {
           {isRegister ? "Create an Account" : "Login"}
         </h2>
 
+        {isRegister &&
+        <div className="mb-6">
+          <label className="block text-white mb-2 font-medium">Username</label>
+          <input
+            type="text"
+            name="username"
+            minLength={5}
+            onChange={handleChange}
+            value={formData.username}
+            required
+            autoComplete="new-username"
+            className="w-full px-3 py-2 rounded-lg bg-green-800 text-white text-base placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400"/>
+        </div>
+        }
+
         <div className="mb-6">
           <label className="block text-white mb-2 font-medium">Email</label>
           <input
@@ -38,6 +54,7 @@ export default function AuthForm({ type, onSubmit, message, clearMessage }) {
             onChange={handleChange}
             value={formData.email}
             required
+            autoComplete="new-email"
             className="w-full px-3 py-2 rounded-lg bg-green-800 text-white text-base placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400"
 />
         </div>
@@ -48,8 +65,10 @@ export default function AuthForm({ type, onSubmit, message, clearMessage }) {
             type="password"
             name="password"
             value={formData.password}
+            minLength={7}
             onChange={handleChange}
             required
+            autoComplete="new-password"
             className="w-full px-3 py-2 rounded-lg bg-green-800 text-white text-base placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400"
           />
         </div>
@@ -79,14 +98,22 @@ export default function AuthForm({ type, onSubmit, message, clearMessage }) {
         >
           {isRegister ? "Register" : "Login"}
         </button>
-        {!isRegister && (
+        {!isRegister ? (
           <p className="text-gray-400 text-center mt-4 text-sm">
             Don’t have an account?{" "}
             <Link
               to="/register"
-              className="text-green-400 hover:text-green-300 font-semibold transition-colors"
-            >
+              className="text-green-400 hover:text-green-300 font-semibold transition-colors">
               Create one here
+            </Link>
+          </p>
+        ) : (
+          <p className="text-gray-400 text-center mt-4 text-sm">
+            Already have an account?{" "}
+            <Link
+              to="/login"
+              className="text-green-400 hover:text-green-300 font-semibold transition-colors">
+              Login in here
             </Link>
           </p>
         )}
