@@ -1,12 +1,16 @@
 import axios from "axios";
+import { UserContext } from "../contexts/UserContext";
+import { useContext } from "react";
 
-const api = axios.create({
+export function useAxios(){
+const {token, logout} = useContext(UserContext);
+
+const instance = axios.create({
   baseURL: "https://localhost:7084/api", 
 });
 
-api.interceptors.request.use(
+instance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token"); 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -15,14 +19,14 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-api.interceptors.response.use(
+instance.interceptors.response.use(
     (response) => response,
     (error) => {
         if(error.response){
             const message = error.response.data?.message || "An error occurred.";
 
             if(error.response.status === 401){
-                localStorage.removeItem("token");
+                logout();
             }
             
             return Promise.reject({message});
@@ -32,4 +36,5 @@ api.interceptors.response.use(
     }
 )
 
-export default api;
+return instance;
+}
