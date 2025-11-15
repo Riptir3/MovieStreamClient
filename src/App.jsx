@@ -4,14 +4,20 @@ import RegisterPage from "./pages/RegisterPage";
 import MoviesPage from "./pages/MoviesPage";
 import MoviePlayerPage from "./pages/MoviePlayerPage";
 
+import ProtectedRoute from "./components/ProtectedRoute"
+import PublicRoute from "./components/PublicRoutes"
+
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<MoviesPage />}/>
-        <Route path="/movies/:id" element={<MoviePlayerPage />}/>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path="/" element={<MoviesPage />}/>
+          <Route path="/movies/:id" element={<MoviePlayerPage />}/>
+        </Route>
+
+        <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
+        <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
       </Routes>
     </Router>
   );

@@ -1,14 +1,17 @@
 import { useState, useContext } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import AuthForm from "../components/AuthForm";
 import { loginUser } from "../services/AuthService";
 import { UserContext } from "../contexts/UserContext";
-import { useNavigate } from "react-router-dom";
 import { useAxios } from "../api/axios";
 
 export default function LoginPage() {
   const [message, setMessage] = useState(""); 
   const { login } = useContext(UserContext);
+
   const navigate = useNavigate();
+  const location = useLocation();
+
   const axios = useAxios();
 
   const handleLogin = async (data) => {
@@ -16,10 +19,12 @@ export default function LoginPage() {
     try {
       const response = await loginUser(axios,data.email, data.password);
       login(response.token, response.username)
-      setMessage("Login successful ✅");
 
+      const redirectTo = location.state?.from?.pathname || "/";
+
+      setMessage("Login successful ✅");
       setTimeout(() => {
-        navigate("/");
+        navigate(redirectTo, { replace: true });;
       }, 1000);
 
     } catch (err) {
