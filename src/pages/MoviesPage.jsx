@@ -1,13 +1,16 @@
 import { useEffect, useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { getAllMovie } from "../services/MovieService";
+import { getFavorites, addFavorite, removeFavorite } from "../services/FavoriteService";
 import { useAxios } from "../api/axios";
 import { UserContext } from "../contexts/UserContext";
 import { motion, AnimatePresence } from "framer-motion";
+import { FaHeart, FaRegHeart } from "react-icons/fa";
 
 export default function MoviesPage() {
-  const { logout, user } = useContext(UserContext); 
+  const { logout, user } = useContext(UserContext);
   const [movies, setMovies] = useState([]);
+  const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [search, setSearch] = useState("");
@@ -23,6 +26,9 @@ export default function MoviesPage() {
       try {
         const response = await getAllMovie(axios);
         setMovies(response);
+
+        const favResponse = await getFavorites(axios);
+        setFavorites(favResponse.map(f => f));
       } catch (err) {
         setError(true);
       } finally {
@@ -32,9 +38,31 @@ export default function MoviesPage() {
     loadMovies();
   }, []);
 
+  const toggleFavorite = async (movieId) => {
+    try {
+      if (favorites.includes(movieId)) {
+        await removeFavorite(axios, movieId);
+        setFavorites(prev => prev.filter(id => id !== movieId));
+      } else {
+        await addFavorite(axios, movieId);
+        setFavorites(prev => [...prev, movieId]);
+      }
+    } catch (err) {
+      console.error("Favorite toggle error:", err);
+    }
+  };
+
   const handleLogout = () => {
     logout();
     navigate("/login");
+  };
+
+  const isNewMovie = (createdAt) => {
+    const movieDate = new Date(createdAt);
+    const today = new Date();
+    return movieDate.getFullYear() === today.getFullYear() &&
+           movieDate.getMonth() === today.getMonth() &&
+           movieDate.getDate() === today.getDate();
   };
 
   if (loading)
@@ -63,8 +91,7 @@ export default function MoviesPage() {
 
   const filteredMovies = movies.filter((m) => {
     const matchesSearch = m.title.toLowerCase().includes(search.toLowerCase());
-    const matchesCategory =
-      categoryFilter === "All" || m.category === categoryFilter;
+    const matchesCategory = categoryFilter === "All" || categoryFilter === "Favorites" ? true : m.category === categoryFilter;
     return matchesSearch && matchesCategory;
   });
 
@@ -112,50 +139,76 @@ export default function MoviesPage() {
             </option>
           ))}
         </select>
+
+        <button
+          onClick={() => setCategoryFilter(categoryFilter === "Favorites" ? "All" : "Favorites")}
+          className="ml-auto p-3 rounded-lg bg-green-600 hover:bg-green-700 text-white transition-colors"
+        >
+          Show Favorites
+        </button>
       </div>
 
       <div className="p-6 max-w-6xl mx-auto grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-  <AnimatePresence>
-    {currentMovies.map((movie) => (
-      <motion.div
-  key={movie.id}
-  initial={{ opacity: 0, y: 20 }}
-  animate={{ opacity: 1, y: 0 }}
-  exit={{ opacity: 0, y: -20 }}
-  whileHover={{ scale: 1.05, boxShadow: "0 10px 20px rgba(0,0,0,0.5)" }}
-  transition={{ duration: 0.3 }}
-  className="bg-gray-800 rounded-xl overflow-hidden"
->
-  <Link to={`/movies/${movie.id}`}>
-    <div className="w-full aspect-[2/3]">
-      <img
-        src={movie.posterUrl}
-        alt={movie.title}
-        className="w-full h-full object-cover rounded-t-xl"
-        loading="lazy"
-      />
-    </div>
+        <AnimatePresence>
+          {currentMovies
+            .filter(m => categoryFilter !== "Favorites" || favorites.includes(m.id))
+            .map((movie) => (
+              <motion.div
+                key={movie.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                whileHover={{ scale: 1.05, boxShadow: "0 10px 20px rgba(0,0,0,0.5)" }}
+                transition={{ duration: 0.3 }}
+                className="bg-gray-800 rounded-xl overflow-hidden relative"
+              >
 
-    <div className="p-4">
-      <h3 className="text-xl font-bold text-white line-clamp-1">
-        {movie.title}
-      </h3>
-      <span
-        className={`inline-block text-white text-xs px-2 py-1 rounded-full mt-1 transition-colors duration-300 ${
-          categoryColors[movie.category] || "bg-green-700 text-green-100"
-        } hover:brightness-125`}
-      >
-        {movie.category}
-      </span>
-      <p className="text-gray-400 text-sm mt-2 line-clamp-3">
-        {movie.description}
-      </p>
-    </div>
-  </Link>
-</motion.div>
-    ))}
-  </AnimatePresence>
-</div>
+                <div className="relative">
+                  <Link to={`/movies/${movie.id}`}>
+                    <div className="w-full aspect-[2/3]">
+                      <img
+                        src={movie.posterUrl}
+                        alt={movie.title}
+                        className="w-full h-full object-cover rounded-t-xl"
+                        loading="lazy"
+                      />
+                    </div>
+                  </Link>
+<motion.button
+  onClick={() => toggleFavorite(movie.id)}
+  className="absolute top-3 right-3 text-red-500 text-2xl z-10"
+  whileTap={{ scale: 1.4 }}
+  transition={{ type: "spring", stiffness: 300, damping: 15 }}
+>
+  {favorites.includes(movie.id) ? (
+    <FaHeart className="drop-shadow-lg" />
+  ) : (
+    <FaRegHeart className="drop-shadow-lg" />
+  )}
+</motion.button>
+
+                  {isNewMovie(movie.createdAt) && (
+                    <span className="absolute top-3 left-3 bg-green-500 text-white px-2 py-1 text-xs font-bold rounded">NEW</span>
+                  )}
+                </div>
+
+                <div className="p-4">
+                  <h3 className="text-xl font-bold text-white line-clamp-1">{movie.title}</h3>
+                  <p className="text-gray-300 text-sm mt-1">Director: {movie.director}</p>
+                  <p className="text-gray-300 text-sm">Year: {movie.releaseYear}</p>
+                  <span
+                    className={`inline-block text-white text-xs px-2 py-1 rounded-full mt-1 transition-colors duration-300 ${
+                      categoryColors[movie.category] || "bg-green-700 text-green-100"
+                    } hover:brightness-125`}
+                  >
+                    {movie.category}
+                  </span>
+                  <p className="text-gray-400 text-sm mt-2 line-clamp-3">{movie.description}</p>
+                </div>
+              </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
 
       <div className="flex justify-center items-center space-x-2 my-8">
         <button
@@ -186,6 +239,7 @@ export default function MoviesPage() {
           Next
         </button>
       </div>
+
     </div>
   );
 }
