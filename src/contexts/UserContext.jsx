@@ -21,7 +21,7 @@ export function UserProvider({ children }) {
 
     const logout = () => {
       setToken(null);
-      setUser(null)
+      setUser(null);
     }
 
   return (

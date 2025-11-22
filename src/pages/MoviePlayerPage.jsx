@@ -1,17 +1,23 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAxios } from "../api/axios";
-import { getMovie } from "../services/MovieService"
+import { getMovie, createMovieReport } from "../services/MovieService";
+
 export default function MoviePlayerPage() {
   const { id } = useParams();
   const [movie, setMovie] = useState(null);
   const [loading, setLoading] = useState(true);
-  const axios = useAxios()
+  const axios = useAxios();
+
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportComment, setReportComment] = useState("");
+  const [sending, setSending] = useState(false);
+  const [sentMessage, setSentMessage] = useState("");
 
   useEffect(() => {
     const fetchMovie = async () => {
       try {
-        const response = await getMovie(axios,id);
+        const response = await getMovie(axios, id);
         setMovie(response);
       } catch (err) {
         console.error(err);
@@ -22,29 +28,54 @@ export default function MoviePlayerPage() {
     fetchMovie();
   }, [id]);
 
-const categoryColors = {
-        "Action": "bg-red-700 text-red-100",
-        "Comedy": "bg-yellow-600 text-yellow-900",
-        "Drama": "bg-blue-700 text-blue-100",
-        "Horror": "bg-gray-800 text-gray-200",
-        "Sci-Fi": "bg-purple-700 text-purple-100",
-        "Default": "bg-green-700 text-green-100",
-};
+  const categoryColors = {
+    Action: "bg-red-700 text-red-100",
+    Comedy: "bg-yellow-600 text-yellow-900",
+    Drama: "bg-blue-700 text-blue-100",
+    Horror: "bg-gray-800 text-gray-200",
+    "Sci-Fi": "bg-purple-700 text-purple-100",
+    Default: "bg-green-700 text-green-100",
+  };
 
-  if (loading) return <p className="text-white text-center mt-10">Loading...</p>;
-  if (!movie) return <p className="text-white text-center mt-10">Movie not found!</p>;
+  const handleSendReport = async () => {
+    if (!reportComment.trim()) return;
 
-return (
+    try {
+      setSending(true);
+      await createMovieReport(axios, id, reportComment);
+      setSentMessage("Report sent successfully!");
+      setReportComment("");
+
+      setTimeout(() => {
+        setShowReportModal(false);
+        setSentMessage("");
+      }, 1500);
+    } catch (err) {
+      console.error(err);
+      setSentMessage("Server Problem.");
+    } finally {
+      setSending(false);
+    }
+  };
+
+  if (loading)
+    return <p className="text-white text-center mt-10">Loading...</p>;
+  if (!movie)
+    return <p className="text-white text-center mt-10">Movie not found!</p>;
+
+  return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-black flex flex-col items-center p-4">
       <h1 className="text-4xl md:text-5xl font-extrabold text-green-400 text-center mb-2">
         {movie.title}
       </h1>
 
-        <span className={`px-3 py-1 rounded-full text-sm font-semibold mb-6 ${
-            categoryColors[movie.category] || categoryColors.Default
-        }`}>
-            {movie.category}
-        </span>
+      <span
+        className={`px-3 py-1 rounded-full text-sm font-semibold mb-6 ${
+          categoryColors[movie.category] || categoryColors.Default
+        }`}
+      >
+        {movie.category}
+      </span>
 
       <div className="relative w-full max-w-5xl h-[300px] md:h-[600px] rounded-xl shadow-2xl border-4 border-green-600 overflow-hidden transition-all hover:scale-105 hover:shadow-[0_0_40px_rgba(16,185,129,0.7)]">
         <iframe
@@ -55,16 +86,97 @@ return (
         ></iframe>
       </div>
 
-      <p className="text-gray-300 text-base md:text-lg mt-6 max-w-3xl text-center">
-        {movie.description}
-      </p>
+      <div className="w-full max-w-5xl bg-gray-800 bg-opacity-40 border border-green-700 rounded-xl mt-8 p-6 shadow-xl backdrop-blur">
+        <div className="flex flex-col md:flex-row gap-6">
+          
+          <img
+            src={movie.posterUrl}
+            alt={movie.title}
+            className="w-48 h-72 object-cover rounded-lg shadow-lg border border-green-700"
+          />
 
+          <div className="flex-1 text-gray-200">
+            <h2 className="text-2xl font-bold text-green-400 mb-3">
+              Movie Information
+            </h2>
+
+            <p className="text-lg">
+              <span className="font-semibold text-green-300">Director:</span>{" "}
+              {movie.director || "Unknown"}
+            </p>
+
+            <p className="text-lg mt-1">
+              <span className="font-semibold text-green-300">Year:</span>{" "}
+              {movie.releaseYear || "Unknown"}
+            </p>
+
+            <h3 className="text-xl font-semibold text-green-400 mt-4 mb-2">
+              Description
+            </h3>
+
+            <div className="text-gray-300 text-base md:text-lg leading-relaxed break-all">
+             {movie.description}
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    <div className="w-full max-w-5xl mt-6 flex justify-between items-center">
       <Link
         to="/"
-        className="mt-8 text-green-400 hover:text-green-300 font-semibold transition-colors text-lg"
+        className="text-green-400 hover:text-green-300 font-semibold transition-colors text-lg"
       >
-        ← Back to Movies
+      ← Back to Movies
       </Link>
+
+    <button
+      onClick={() => setShowReportModal(true)}
+      className="bg-red-600 hover:bg-red-500 text-white font-semibold px-6 py-2 rounded-lg shadow-md"
+    >
+      Report Movie Issue
+    </button>
+    </div>
+
+
+      {showReportModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center p-4 z-50">
+          <div className="bg-gray-900 p-6 rounded-xl w-full max-w-md shadow-xl border border-green-600">
+            <h2 className="text-xl font-bold text-green-400 mb-4">
+              Report the issue!
+            </h2>
+
+            <textarea
+              value={reportComment}
+              onChange={(e) => setReportComment(e.target.value)}
+              className="w-full p-3 h-32 rounded-lg bg-gray-800 text-gray-200 border border-gray-600 outline-none focus:border-green-500"
+              placeholder="What's the problem..."
+            ></textarea>
+
+            {sentMessage && (
+              <p className="text-green-400 mt-2 text-sm">{sentMessage}</p>
+            )}
+
+            <div className="flex justify-end gap-3 mt-4">
+              <button
+                onClick={() => setShowReportModal(false)}
+                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg"
+                disabled={sending}
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleSendReport}
+                className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg"
+                disabled={sending}
+              >
+                {sending ? "Sending..." : "Send"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
