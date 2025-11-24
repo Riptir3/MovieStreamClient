@@ -3,6 +3,7 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import MoviesPage from "./pages/MoviesPage";
 import MoviePlayerPage from "./pages/MoviePlayerPage";
+import AdminMoviesPage from "./pages/AdminMoviePage"
 
 import ProtectedRoute from "./components/ProtectedRoute"
 import PublicRoute from "./components/PublicRoutes"
@@ -14,6 +15,7 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<MoviesPage />}/>
           <Route path="/movies/:id" element={<MoviePlayerPage />}/>
+          <Route path="/admin" element={<AdminMoviesPage />}/>
         </Route>
 
         <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
