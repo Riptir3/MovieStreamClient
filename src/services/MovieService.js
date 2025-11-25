@@ -23,6 +23,16 @@ export const deleteMovie = async (axios,id) =>{
     return response.data;
 }
 
+export const getActiveMovieRequest = async (axios) =>{
+    const response = await axios.get(`/movierequest`);
+    return response.data;
+}
+
+export const updateMovieRequest = async (axios, id, status) => {
+  const response = await axios.put(`/movierequest/${id}?status=${status}`);
+  return response;
+};
+
 export const createMovieRequest = async (axios, data) =>{
     const response = await axios.post(`/movierequest/send`,{...data});
     return response.data;

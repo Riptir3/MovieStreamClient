@@ -1,10 +1,18 @@
 import { useEffect, useState } from "react";
-import { FiEdit, FiTrash2, FiPlus } from "react-icons/fi";
+import { FiEdit, FiTrash2, FiPlus, FiCheck, FiX } from "react-icons/fi";
 import { useAxios } from "../api/axios";
-import { getAllMovie,createMovie,updateMovie,deleteMovie } from "../services/MovieService";
+import {
+  getAllMovie,
+  createMovie,
+  updateMovie,
+  deleteMovie,
+} from "../services/MovieService";
+import { getActiveMovieRequest, updateMovieRequest } from "../services/MovieService";
 
 export default function AdminMoviesPage() {
+  const [activeTab, setActiveTab] = useState("movies"); // "movies" vagy "requests"
   const [movies, setMovies] = useState([]);
+  const [requests, setRequests] = useState([]);
   const [search, setSearch] = useState("");
 
   const [showAddModal, setShowAddModal] = useState(false);
@@ -12,6 +20,7 @@ export default function AdminMoviesPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const [selectedMovie, setSelectedMovie] = useState(null);
+  const [selectedRequest, setSelectedRequest] = useState(null);
 
   const [newMovie, setNewMovie] = useState({
     title: "",
@@ -36,16 +45,27 @@ export default function AdminMoviesPage() {
   const axios = useAxios();
 
   useEffect(() => {
-    const fetchMovies = async () => {
-      try {
-        const response = await getAllMovie(axios);
-        setMovies(response);
-      } catch (error) {
-        console.log(error.message);
-      }
-    };
     fetchMovies();
+    fetchRequests();
   }, []);
+
+  const fetchMovies = async () => {
+    try {
+      const response = await getAllMovie(axios);
+      setMovies(response);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const fetchRequests = async () => {
+    try {
+      const response = await getActiveMovieRequest(axios);
+      setRequests(response);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   const openEditModal = (movie) => {
     setSelectedMovie(movie);
@@ -58,129 +78,225 @@ export default function AdminMoviesPage() {
     setShowDeleteModal(true);
   };
 
-  const handleAddMovie = async () =>{
+  const handleAddMovie = async () => {
     try {
-        const response = await createMovie(axios,newMovie);
-        setMovies([...movies,response])
-        setShowAddModal(false);
-        setNewMovie({
-            title: "",
-            description: "",
-            category: "",
-            posterUrl: "",
-            videoUrl: "",
-            director: "",
-            releaseYear: 0
-        });
-    } catch (err) {
-        console.log(err);
-    }
-  }
+      const response = await createMovie(axios, newMovie);
+      setMovies([...movies, response]);
 
-    const handleUpdateMovie = async () =>{
-    try {
-        await updateMovie(axios,editMovie);
-        setMovies(prev =>
-            prev.map(m => (m.id === editMovie.id ? editMovie : m))
-        );
-        setShowEditModal(false);
-        setEditMovie({
-            title: "",
-            description: "",
-            category: "",
-            posterUrl: "",
-            videoUrl: "",
-            director: "",
-            releaseYear: 0
-        });
-    } catch (err) {
-        console.log(err);
-    }
-  }
+      if (selectedRequest) {
+        await updateMovieRequest(axios, selectedRequest.id, "Accepted");
+        setRequests(requests.filter((r) => r.id !== selectedRequest.id));
+        setSelectedRequest(null);
+      }
 
-  const handleDeleteMovie = async () =>{
-    try {
-        await deleteMovie(axios,selectedMovie.id);
-            setMovies((prev) =>
-                prev.filter((m) => m.id !== selectedMovie.id)
-            );
-        setSelectedMovie(null);
-        setShowDeleteModal(false);
+      setShowAddModal(false);
+      setNewMovie({
+        title: "",
+        description: "",
+        category: "",
+        posterUrl: "",
+        videoUrl: "",
+        director: "",
+        releaseYear: 0,
+      });
     } catch (err) {
-        console.log(err);
+      console.log(err);
     }
-  }
+  };
+
+  const handleUpdateMovie = async () => {
+    try {
+      await updateMovie(axios, editMovie);
+      setMovies((prev) =>
+        prev.map((m) => (m.id === editMovie.id ? editMovie : m))
+      );
+      setShowEditModal(false);
+      setEditMovie({
+        title: "",
+        description: "",
+        category: "",
+        posterUrl: "",
+        videoUrl: "",
+        director: "",
+        releaseYear: 0,
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const handleDeleteMovie = async () => {
+    try {
+      await deleteMovie(axios, selectedMovie.id);
+      setMovies((prev) => prev.filter((m) => m.id !== selectedMovie.id));
+      setSelectedMovie(null);
+      setShowDeleteModal(false);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const handleAcceptRequest = (request) => {
+    setSelectedRequest(request);
+    setNewMovie({
+      title: request.title,
+      description: "",
+      category: "",
+      posterUrl: "",
+      videoUrl: "",
+      director: request.director,
+      releaseYear: request.releaseYear,
+    });
+    setShowAddModal(true);
+  };
+
+  const handleRejectRequest = async (request) => {
+    try {
+      await updateMovieRequest(axios, request.id, "Rejected");
+      setRequests((prev) => prev.filter((r) => r.id !== request.id));
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   const filteredMovies = movies.filter((m) =>
     m.title.toLowerCase().includes(search.toLowerCase())
   );
 
+  const filteredRequests = requests.filter((r) =>
+    r.title.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <div className="p-6 w-full max-w-6xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-bold text-yellow-300">Admin – Movies</h2>
+      <h2 className="text-3xl font-bold text-yellow-300 mb-6">
+        Admin Panel
+      </h2>
 
-        <div className="flex items-center gap-4">
-          <input
-            type="text"
-            placeholder="Search movies..."
-            className="px-4 py-2 rounded-lg bg-gray-800 text-white border border-gray-700"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+      {/* Tabs */}
+      <div className="flex gap-4 mb-6">
+        <button
+          className={`px-4 py-2 rounded-lg ${
+            activeTab === "movies" ? "bg-green-600 text-white" : "bg-gray-700 text-gray-300"
+          }`}
+          onClick={() => setActiveTab("movies")}
+        >
+          Movies
+        </button>
+        <button
+          className={`px-4 py-2 rounded-lg ${
+            activeTab === "requests" ? "bg-green-600 text-white" : "bg-gray-700 text-gray-300"
+          }`}
+          onClick={() => setActiveTab("requests")}
+        >
+          Requests
+        </button>
+      </div>
 
+      {/* Search */}
+      <div className="flex items-center gap-4 mb-4">
+        <input
+          type="text"
+          placeholder="Search..."
+          className="px-4 py-2 rounded-lg bg-gray-800 text-white border border-gray-700 flex-1"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        {activeTab === "movies" && (
           <button
             onClick={() => setShowAddModal(true)}
             className="flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg shadow-md"
           >
             <FiPlus size={18} /> Add Movie
           </button>
-        </div>
+        )}
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-gray-800 text-gray-300">
-              <th className="p-3">Title</th>
-              <th className="p-3">Year</th>
-              <th className="p-3">Director</th>
-              <th className="p-3 w-1/2">Description</th>
-              <th className="p-3 text-center">Actions</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {filteredMovies.map((movie) => (
-              <tr
-                key={movie.id}
-                className="border-b border-gray-700 hover:bg-gray-700 transition-colors text-black hover:text-white"
-              >
-                <td className="py-3">{movie.title}</td>
-                <td className="py-3">{movie.releaseYear}</td>
-                <td className="py-3">{movie.director}</td>
-                <td className="py-3 max-w-lg truncate">{movie.description}</td>
-
-                <td className="p-3 flex justify-center gap-4">
-                  <FiEdit
-                    onClick={() => openEditModal(movie)}
-                    className="text-blue-400 hover:text-blue-300 cursor-pointer"
-                    size={22}
-                  />
-
-                  <FiTrash2
-                    onClick={() => openDeleteModal(movie)}
-                    className="text-red-400 hover:text-red-300 cursor-pointer"
-                    size={22}
-                  />
-                </td>
+      {/* Movies Tab */}
+      {activeTab === "movies" && (
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-gray-800 text-gray-300">
+                <th className="p-3">Title</th>
+                <th className="p-3">Year</th>
+                <th className="p-3">Director</th>
+                <th className="p-3 w-1/2">Description</th>
+                <th className="p-3 text-center">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {filteredMovies.map((movie) => (
+                <tr
+                  key={movie.id}
+                  className="border-b border-gray-700 hover:bg-gray-700 transition-colors text-black hover:text-white"
+                >
+                  <td className="py-3">{movie.title}</td>
+                  <td className="py-3">{movie.releaseYear}</td>
+                  <td className="py-3">{movie.director}</td>
+                  <td className="py-3 max-w-lg truncate">{movie.description}</td>
+                  <td className="p-3 flex justify-center gap-4">
+                    <FiEdit
+                      onClick={() => openEditModal(movie)}
+                      className="text-blue-400 hover:text-blue-300 cursor-pointer"
+                      size={22}
+                    />
+                    <FiTrash2
+                      onClick={() => openDeleteModal(movie)}
+                      className="text-red-400 hover:text-red-300 cursor-pointer"
+                      size={22}
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
-      {/* ADD MODAL */}
+      {/* Requests Tab */}
+      {activeTab === "requests" && (
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-gray-800 text-gray-300">
+                <th className="p-3">Title</th>
+                <th className="p-3">Year</th>
+                <th className="p-3">Director</th>
+                <th className="p-3 w-1/2">Comment</th>
+                <th className="p-3 text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredRequests.map((req) => (
+                <tr
+                  key={req.id}
+                  className="border-b border-gray-700 hover:bg-gray-700 transition-colors text-black hover:text-white"
+                >
+                  <td className="py-3">{req.title}</td>
+                  <td className="py-3">{req.releaseYear}</td>
+                  <td className="py-3">{req.director}</td>
+                  <td className="py-3 max-w-lg truncate">{req.comment}</td>
+                  <td className="p-3 flex justify-center gap-4">
+                    <FiCheck
+                      onClick={() => handleAcceptRequest(req)}
+                      className="text-green-400 hover:text-green-300 cursor-pointer"
+                      size={22}
+                    />
+                    <FiX
+                      onClick={() => handleRejectRequest(req)}
+                      className="text-red-400 hover:text-red-300 cursor-pointer"
+                      size={22}
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* MODALS */}
       {showAddModal && (
         <Modal title="Add New Movie" onClose={() => setShowAddModal(false)}>
           <MovieForm
@@ -192,7 +308,6 @@ export default function AdminMoviesPage() {
         </Modal>
       )}
 
-      {/* EDIT MODAL */}
       {showEditModal && (
         <Modal title="Edit Movie" onClose={() => setShowEditModal(false)}>
           <MovieForm
@@ -200,11 +315,10 @@ export default function AdminMoviesPage() {
             setMovie={setEditMovie}
             submitText="Save Changes"
             onSubmit={handleUpdateMovie}
-            />
+          />
         </Modal>
       )}
 
-      {/* DELETE CONFIRMATION */}
       {showDeleteModal && (
         <Modal title="Delete Movie" onClose={() => setShowDeleteModal(false)}>
           <p className="text-lg">
@@ -222,7 +336,6 @@ export default function AdminMoviesPage() {
             >
               Cancel
             </button>
-
             <button
               onClick={handleDeleteMovie}
               className="px-4 py-2 bg-red-600 hover:bg-red-500 rounded-lg text-white"
@@ -236,23 +349,27 @@ export default function AdminMoviesPage() {
   );
 }
 
+// Generic modal
 function Modal({ title, children, onClose }) {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50">
       <div className="bg-gray-900 p-6 rounded-xl w-full max-w-lg shadow-xl">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-xl font-bold">{title}</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-200">
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-200"
+          >
             ✖
           </button>
         </div>
-
         {children}
       </div>
     </div>
   );
 }
 
+// Movie form
 function MovieForm({ movie, setMovie, submitText, onSubmit }) {
   return (
     <div>
@@ -264,15 +381,15 @@ function MovieForm({ movie, setMovie, submitText, onSubmit }) {
           required
           onChange={(e) => setMovie({ ...movie, title: e.target.value })}
         />
-
         <input
           className="p-2 bg-gray-800 rounded"
           placeholder="Release Year"
           value={movie.releaseYear}
           required
-          onChange={(e) => setMovie({ ...movie, releaseYear: e.target.value })}
+          onChange={(e) =>
+            setMovie({ ...movie, releaseYear: e.target.value })
+          }
         />
-
         <input
           className="p-2 bg-gray-800 rounded"
           placeholder="Director"
@@ -280,7 +397,6 @@ function MovieForm({ movie, setMovie, submitText, onSubmit }) {
           required
           onChange={(e) => setMovie({ ...movie, director: e.target.value })}
         />
-
         <input
           className="p-2 bg-gray-800 rounded"
           placeholder="Category"
@@ -288,7 +404,6 @@ function MovieForm({ movie, setMovie, submitText, onSubmit }) {
           required
           onChange={(e) => setMovie({ ...movie, category: e.target.value })}
         />
-
         <textarea
           className="p-2 bg-gray-800 rounded h-28"
           placeholder="Description"
@@ -298,7 +413,6 @@ function MovieForm({ movie, setMovie, submitText, onSubmit }) {
             setMovie({ ...movie, description: e.target.value })
           }
         />
-
         <input
           className="p-2 bg-gray-800 rounded"
           placeholder="Poster URL"
@@ -306,7 +420,6 @@ function MovieForm({ movie, setMovie, submitText, onSubmit }) {
           required
           onChange={(e) => setMovie({ ...movie, posterUrl: e.target.value })}
         />
-
         <input
           className="p-2 bg-gray-800 rounded"
           placeholder="Video URL"
