@@ -38,6 +38,16 @@ export const createMovieRequest = async (axios, data) =>{
     return response.data;
 }
 
+export const getActiveMovieReport = async (axios) =>{
+    const response = await axios.get(`/moviereport`);
+    return response.data;
+}
+
+export const updateMovieReport = async (axios, id, status) =>{
+    const response = await axios.put(`/moviereport/${id}?status=${status}`);
+    return response;
+}
+
 export const createMovieReport = async (axios, movieId, comment) =>{
     const response = await axios.post(`/moviereport/create`,{
         movieId: movieId,
@@ -45,3 +55,5 @@ export const createMovieReport = async (axios, movieId, comment) =>{
     });
     return response.data;
 }
+
+
