@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { FiEdit, FiTrash2, FiPlus, FiCheck, FiX } from "react-icons/fi";
-import { useAxios } from "../api/axios";
 import {
   getAllMovie,
   createMovie,
@@ -47,8 +46,6 @@ export default function AdminMoviesPage() {
     releaseYear: 0,
   });
 
-  const axios = useAxios();
-
   useEffect(() => {
     fetchMovies();
     fetchRequests();
@@ -57,7 +54,7 @@ export default function AdminMoviesPage() {
 
   const fetchMovies = async () => {
     try {
-      const response = await getAllMovie(axios);
+      const response = await getAllMovie();
       setMovies(response);
     } catch (err) {
       console.log(err);
@@ -66,7 +63,7 @@ export default function AdminMoviesPage() {
 
   const fetchRequests = async () => {
     try {
-      const response = await getActiveMovieRequest(axios);
+      const response = await getActiveMovieRequest();
       setRequests(response);
     } catch (err) {
       console.log(err);
@@ -75,7 +72,7 @@ export default function AdminMoviesPage() {
 
   const fetchReports = async () => {
     try {
-      const response = await getActiveMovieReport(axios);
+      const response = await getActiveMovieReport();
       setReports(response);
     } catch (err) {
       console.log(err);
@@ -95,11 +92,11 @@ export default function AdminMoviesPage() {
 
   const handleAddMovie = async () => {
     try {
-      const response = await createMovie(axios, newMovie);
+      const response = await createMovie(newMovie);
       setMovies([...movies, response]);
 
       if (selectedRequest) {
-        await updateMovieRequest(axios, selectedRequest.id, "Accepted");
+        await updateMovieRequest(selectedRequest.id, "Accepted");
         setRequests(requests.filter((r) => r.id !== selectedRequest.id));
         setSelectedRequest(null);
       }
@@ -121,7 +118,7 @@ export default function AdminMoviesPage() {
 
   const handleUpdateMovie = async () => {
     try {
-      await updateMovie(axios, editMovie);
+      await updateMovie(editMovie);
       setMovies((prev) =>
         prev.map((m) => (m.id === editMovie.id ? editMovie : m))
       );
@@ -142,7 +139,7 @@ export default function AdminMoviesPage() {
 
   const handleDeleteMovie = async () => {
     try {
-      await deleteMovie(axios, selectedMovie.id);
+      await deleteMovie(selectedMovie.id);
       setMovies((prev) => prev.filter((m) => m.id !== selectedMovie.id));
       setSelectedMovie(null);
       setShowDeleteModal(false);
@@ -167,7 +164,7 @@ export default function AdminMoviesPage() {
 
   const handleRejectRequest = async (request) => {
     try {
-      await updateMovieRequest(axios, request.id, "Rejected");
+      await updateMovieRequest(request.id, "Rejected");
       setRequests((prev) => prev.filter((r) => r.id !== request.id));
     } catch (err) {
       console.log(err);
@@ -176,7 +173,7 @@ export default function AdminMoviesPage() {
 
   const handleAcceptReport = async (report) => {
     try {
-      await updateMovieReport(axios, report.id, "Approved");
+      await updateMovieReport(report.id, "Approved");
       setReports((prev) => prev.filter((r) => r.id !== report.id));
     } catch (err) {
       console.log(err);
@@ -185,7 +182,7 @@ export default function AdminMoviesPage() {
 
   const handleRejectReport = async (report) => {
     try {
-      await updateMovieReport(axios, report.id, "Rejected");
+      await updateMovieReport(report.id, "Rejected");
       setReports((prev) => prev.filter((r) => r.id !== report.id));
     } catch (err) {
       console.log(err);

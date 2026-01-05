@@ -1,16 +1,11 @@
 import axios from "axios";
-import { UserContext } from "../contexts/UserContext";
-import { useContext } from "react";
+import { removeSession, getSession } from "../session/Cookies";
 
-export function useAxios(){
-const {token, logout} = useContext(UserContext);
+const Axios = axios.create({baseURL: "https://localhost:7084/api"})
 
-const instance = axios.create({
-  baseURL: "https://localhost:7084/api", 
-});
-
-instance.interceptors.request.use(
+Axios.interceptors.request.use(
   (config) => {
+    const token = getSession("Token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -19,22 +14,19 @@ instance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-instance.interceptors.response.use(
+Axios.interceptors.response.use(
     (response) => response,
     (error) => {
         if(error.response){
             const message = error.response.data?.message || "An error occurred.";
-
             if(error.response.status === 401){
-                logout();
+                removeSession("Token")
+                removeSession("User")
             }
-            
             return Promise.reject({message});
         }
-
         return Promise.reject({message: "Server or Network Issue."})
     }
 )
 
-return instance;
-}
+export default Axios;

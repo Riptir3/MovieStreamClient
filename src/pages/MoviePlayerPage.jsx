@@ -1,14 +1,11 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { useAxios } from "../api/axios";
 import { getMovie, createMovieReport } from "../services/MovieService";
 
 export default function MoviePlayerPage() {
   const { id } = useParams();
   const [movie, setMovie] = useState(null);
   const [loading, setLoading] = useState(true);
-  const axios = useAxios();
-
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportComment, setReportComment] = useState("");
   const [sending, setSending] = useState(false);
@@ -17,7 +14,7 @@ export default function MoviePlayerPage() {
   useEffect(() => {
     const fetchMovie = async () => {
       try {
-        const response = await getMovie(axios, id);
+        const response = await getMovie( id);
         setMovie(response);
       } catch (err) {
         console.error(err);
@@ -42,7 +39,7 @@ export default function MoviePlayerPage() {
 
     try {
       setSending(true);
-      await createMovieReport(axios, id, reportComment);
+      await createMovieReport(id, reportComment);
       setSentMessage("Report sent successfully!");
       setReportComment("");
 

@@ -1,55 +1,57 @@
-export const getAllMovie = async (axios) =>{
-    const response = await axios.get(`/movie`);
+import Axios from "../api/axios"
+
+export const getAllMovie = async () =>{
+    const response = await Axios.get(`/movie`);
     return response.data;
 }
 
-export const getMovie = async (axios,id) =>{
-    const response = await axios.get(`/movie/${id}`);
+export const getMovie = async (id) =>{
+    const response = await Axios.get(`/movie/${id}`);
     return response.data;
 }
 
-export const createMovie = async (axios,data) =>{
-    const response = await axios.post(`/movie`,data);
+export const createMovie = async (data) =>{
+    const response = await Axios.post(`/movie`,data);
     return response.data;
 }
 
-export const updateMovie = async (axios,data) =>{
-    const response = await axios.put(`/movie`,data);
+export const updateMovie = async (data) =>{
+    const response = await Axios.put(`/movie`,data);
     return response.data;
 }
 
-export const deleteMovie = async (axios,id) =>{
-    const response = await axios.delete(`/movie/${id}`);
+export const deleteMovie = async (id) =>{
+    const response = await Axios.delete(`/movie/${id}`);
     return response.data;
 }
 
-export const getActiveMovieRequest = async (axios) =>{
-    const response = await axios.get(`/movierequest`);
+export const getActiveMovieRequest = async () =>{
+    const response = await Axios.get(`/movierequest`);
     return response.data;
 }
 
-export const updateMovieRequest = async (axios, id, status) => {
-  const response = await axios.put(`/movierequest/${id}?status=${status}`);
+export const updateMovieRequest = async ( id, status) => {
+  const response = await Axios.put(`/movierequest/${id}?status=${status}`);
   return response;
 };
 
-export const createMovieRequest = async (axios, data) =>{
-    const response = await axios.post(`/movierequest/send`,{...data});
+export const createMovieRequest = async ( data) =>{
+    const response = await Axios.post(`/movierequest/send`,{...data});
     return response.data;
 }
 
-export const getActiveMovieReport = async (axios) =>{
-    const response = await axios.get(`/moviereport`);
+export const getActiveMovieReport = async () =>{
+    const response = await Axios.get(`/moviereport`);
     return response.data;
 }
 
-export const updateMovieReport = async (axios, id, status) =>{
-    const response = await axios.put(`/moviereport/${id}?status=${status}`);
+export const updateMovieReport = async ( id, status) =>{
+    const response = await Axios.put(`/moviereport/${id}?status=${status}`);
     return response;
 }
 
-export const createMovieReport = async (axios, movieId, comment) =>{
-    const response = await axios.post(`/moviereport/create`,{
+export const createMovieReport = async (movieId, comment) =>{
+    const response = await Axios.post(`/moviereport/create`,{
         movieId: movieId,
         comment: comment
     });

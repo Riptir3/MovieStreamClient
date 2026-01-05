@@ -2,7 +2,6 @@ import { useEffect, useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { getAllMovie, createMovieRequest } from "../services/MovieService";
 import { getFavorites, addFavorite, removeFavorite } from "../services/FavoriteService";
-import { useAxios } from "../api/axios";
 import { UserContext } from "../contexts/UserContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
@@ -25,17 +24,15 @@ export default function MoviesPage() {
   const [requestComment, setRequestComment] = useState("");
   const [requestSuccess, setRequestSuccess] = useState(false);
   const [responseMessage, setResponseMessage] = useState("");
-
-  const axios = useAxios();
   const navigate = useNavigate();
 
   useEffect(() => {
     const loadMovies = async () => {
       try {
-        const response = await getAllMovie(axios);
+        const response = await getAllMovie();
         setMovies(response);
 
-        const favResponse = await getFavorites(axios);
+        const favResponse = await getFavorites();
         setFavorites(favResponse.map(f => f));
       } catch (err) {
         setError(true);
@@ -49,10 +46,10 @@ export default function MoviesPage() {
   const toggleFavorite = async (movieId) => {
     try {
       if (favorites.includes(movieId)) {
-        await removeFavorite(axios, movieId);
+        await removeFavorite( movieId);
         setFavorites(prev => prev.filter(id => id !== movieId));
       } else {
-        await addFavorite(axios, movieId);
+        await addFavorite(movieId);
         setFavorites(prev => [...prev, movieId]);
       }
     } catch (err) {

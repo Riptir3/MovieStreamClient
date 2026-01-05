@@ -1,12 +1,14 @@
-export const getFavorites = async (axios) => {
-  const response = await axios.get("/favorite");
+import Axios from "../api/axios"
+
+export const getFavorites = async () => {
+  const response = await Axios.get("/favorite");
   return response.data; 
 };
 
-export const addFavorite = async (axios, movieId) => {
-  await axios.post(`/favorite/add/${movieId}`);
+export const addFavorite = async ( movieId) => {
+  await Axios.post(`/favorite/add/${movieId}`);
 };
 
-export const removeFavorite = async (axios, movieId) => {
-  await axios.delete(`/favorite/remove/${movieId}`);
+export const removeFavorite = async ( movieId) => {
+  await Axios.delete(`/favorite/remove/${movieId}`);
 };

@@ -1,18 +1,19 @@
 import { createContext, useState, useEffect } from "react";
+import { getSession, saveSession, removeSession } from "../session/Cookies";
 
 export const UserContext = createContext();
 
 export function UserProvider({ children }) {
-    const [token, setToken] = useState(() => localStorage.getItem("token"));
-    const [user, setUser] = useState(() => localStorage.getItem("user") || null);
+    const [token, setToken] = useState(() => getSession("Token"));
+    const [user, setUser] = useState(() => getSession("User") || null);
 
     useEffect(() => {
         if (token) {
-            localStorage.setItem("token", token);
-            localStorage.setItem("user", user);
+            saveSession("Token", token);
+            saveSession("User", user);
         } else { 
-            localStorage.removeItem("token");
-            localStorage.removeItem("user");
+            removeSession("Token");
+            removeSession("User");
         }
     }, [token]);
 
