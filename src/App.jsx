@@ -7,15 +7,19 @@ import AdminMoviesPage from "./pages/AdminMoviePage"
 
 import ProtectedRoute from "./components/ProtectedRoute"
 import PublicRoute from "./components/PublicRoutes"
+import AdminRoute from "./components/AdminRoute"
 
 function App() {
   return (
     <Router>
       <Routes>
+        <Route element={<AdminRoute/>}>
+          <Route path="/admin" element={<AdminMoviesPage />}/>
+        </Route>
+
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<MoviesPage />}/>
           <Route path="/movies/:id" element={<MoviePlayerPage />}/>
-          <Route path="/admin" element={<AdminMoviesPage />}/>
         </Route>
 
         <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />

@@ -15,14 +15,14 @@ export default function LoginPage() {
     setMessage("");
     try {
       const response = await loginUser(data.email, data.password);
-      login(response.token, response.username)
-
-      const redirectTo = location.state?.from?.pathname || "/";
-
       setMessage("Login successful ✅");
+      
       setTimeout(() => {
-        navigate(redirectTo, { replace: true });;
-      }, 1000);
+      login(response.token);
+      
+      const redirectTo = location.state?.from?.pathname || "/";
+      navigate(redirectTo, { replace: true });
+    }, 1000);
 
     } catch (err) {
       setMessage(err.message);
