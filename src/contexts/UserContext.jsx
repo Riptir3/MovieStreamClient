@@ -41,6 +41,8 @@ export function UserProvider({ children }) {
         setToken(null);
         setUser(null);
         setRole(null);
+        removeSession("Token")
+        removeSession("User")
     };
 
     const isAdmin = role === "Admin";

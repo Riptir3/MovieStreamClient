@@ -1,6 +1,6 @@
 import { FaExclamationTriangle } from "react-icons/fa";
 
-export default function ErrorMessage() {
+export default function ErrorMessage({message}) {
   const handleRefresh = () => {
     window.location.reload();
   };
@@ -14,7 +14,7 @@ export default function ErrorMessage() {
         
         <h2 className="text-red-500 text-2xl font-bold mb-2">Ups...</h2>
         <p className="text-gray-300 mb-6">
-          There was an error loading the movies. Please check your internet connection.
+          {message}
         </p>
         
         <button 

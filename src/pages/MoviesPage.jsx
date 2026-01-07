@@ -47,13 +47,13 @@ export default function MoviesPage() {
   const totalPages = Math.ceil(filteredMovies.length / moviesPerPage);
 
   if (loading) return <LoadingSpinner />;
-  if (error) return <ErrorMessage />;
+  if (error !== "") return <ErrorMessage message={error}/>;
 
   return (
     <div className="bg-gray-900 min-h-screen text-white">
       <Navbar 
         user={user} 
-        onLogout={() => { logout(); navigate("/login"); }} 
+        onLogout={() => { logout() ; navigate("/login"); }} 
       />
 
       <FilterBar 

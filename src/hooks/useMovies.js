@@ -6,7 +6,7 @@ export function useMovies() {
   const [movies, setMovies] = useState([]);
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState("");
 
   const loadData = async () => {
     try {
@@ -15,7 +15,7 @@ export function useMovies() {
       setMovies(movieRes);
       setFavorites(favRes);
     } catch (err) {
-      setError(true);
+      setError(err);
     } finally {
       setLoading(false);
     }

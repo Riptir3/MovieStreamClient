@@ -25,7 +25,7 @@ export default function LoginPage() {
     }, 1000);
 
     } catch (err) {
-      setMessage(err.message);
+      setMessage(err);
     }
   };
 
