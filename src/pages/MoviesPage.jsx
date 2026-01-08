@@ -15,7 +15,7 @@ import ErrorMessage from "../components/ErrorMessage";
 export default function MoviesPage() {
   const { logout, user } = useContext(UserContext);
   const navigate = useNavigate();
-  const { movies, favorites, loading, error, toggleFavorite } = useMovies();
+  const { movies, favorites, loading, error, toggleFavorite, loadData } = useMovies();
 
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All");
@@ -47,7 +47,7 @@ export default function MoviesPage() {
   const totalPages = Math.ceil(filteredMovies.length / moviesPerPage);
 
   if (loading) return <LoadingSpinner />;
-  if (error !== "") return <ErrorMessage message={error}/>;
+  if (error !== "") return <ErrorMessage message={error} onRetry={loadData}/>;
 
   return (
     <div className="bg-gray-900 min-h-screen text-white">

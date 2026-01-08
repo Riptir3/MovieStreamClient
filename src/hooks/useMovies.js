@@ -11,6 +11,7 @@ export function useMovies() {
   const loadData = async () => {
     try {
       setLoading(true);
+      setError("")
       const [movieRes, favRes] = await Promise.all([getAllMovie(), getFavorites()]);
       setMovies(movieRes);
       setFavorites(favRes);
@@ -36,5 +37,5 @@ export function useMovies() {
     } catch (err) { console.error(err); }
   };
 
-  return { movies, favorites, loading, error, toggleFavorite };
+  return { movies, favorites, loading, error, toggleFavorite, loadData };
 }
