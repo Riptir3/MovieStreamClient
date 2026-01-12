@@ -31,7 +31,6 @@ export default function RequestMovieModal({ onClose }) {
         message: response.message || "Request sent successfully!" 
       });
 
-      // AUTOMATIKUS BEZÁRÁS 1 MÁSODPERC UTÁN
       setTimeout(() => {
         onClose();
       }, 1000);
@@ -45,7 +44,6 @@ export default function RequestMovieModal({ onClose }) {
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center z-[10000] p-4">
       <div className="bg-gray-900 p-8 rounded-2xl w-full max-w-md border border-green-900/30 shadow-[0_0_40px_rgba(16,185,129,0.1)] relative">
         
-        {/* Bezáró gomb - csak akkor látszik, ha még nincs kész a küldés */}
         {!status.success && (
           <button 
             onClick={onClose}
@@ -86,7 +84,9 @@ export default function RequestMovieModal({ onClose }) {
                   name="releaseYear" 
                   type="number" 
                   placeholder="Release year *" 
-                  required 
+                  required
+                  min={1900}
+                  max={new Date(Date.now()).getFullYear()}
                   onChange={handleChange} 
                   className="w-full p-3 rounded-xl bg-gray-800 text-white border border-gray-700 focus:border-green-500 focus:ring-1 focus:ring-green-500 outline-none transition-all placeholder:text-gray-500" 
                 />

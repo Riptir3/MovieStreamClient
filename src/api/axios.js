@@ -17,25 +17,30 @@ Axios.interceptors.request.use(
 );
 
 Axios.interceptors.response.use(
-    (response) => response,
-    (error) => {
-          const serverMessage = typeof error.response.data === 'string' 
-              ? error.response.data 
-              : error.response.data?.message;
+  (response) => response,
+  (error) => {
+    const serverMessage = typeof error.response?.data === 'string' 
+        ? error.response.data 
+        : error.response?.data?.message;
 
-          if(error.response?.status === 401){
-              removeSession("Token")
-              removeSession("User")
-          }
-          
-          else if(error.response){
-            return Promise.reject(serverMessage);
-          }
-          else if(error.request){
-                return Promise.reject({message: "Server or Network issue!"});
-          }
-    return Promise.reject(serverMessage);
+    if (error.response?.status === 401) {
+      removeSession("Token");
+      removeSession("User");
+      
+      if (!window.location.pathname.includes("/login")) {
+        const currentPath = window.location.pathname;
+        window.location.href = `/login?expired=true&redirect=${currentPath}`;
+      }
+    } 
+    else if (error.response) {
+      return Promise.reject(serverMessage);
     }
-)
+    else if (error.request) {
+      return Promise.reject("Server or Network issue!");
+    }
+    
+    return Promise.reject(serverMessage || "Something went wrong");
+  }
+);
 
 export default Axios;

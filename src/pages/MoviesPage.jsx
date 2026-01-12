@@ -53,7 +53,7 @@ export default function MoviesPage() {
     <div className="bg-gray-900 min-h-screen text-white">
       <Navbar 
         user={user} 
-        onLogout={() => { logout() ; navigate("/login"); }} 
+        onLogout={() => { logout() ; navigate("/login", { state: { manualLogout: true }, replace: true }); }} 
       />
 
       <FilterBar 

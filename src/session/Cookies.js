@@ -6,7 +6,7 @@ export const saveSession = (name, data) =>{
 }
 
 export const getSession = (name) =>{
-const session = Cookies.get(name);
+    const session = Cookies.get(name);
     if (!session) return null;
     try {
         return JSON.parse(session);
@@ -18,3 +18,14 @@ const session = Cookies.get(name);
 export const removeSession = (name) =>{
     Cookies.remove(name)
 }
+
+export const setLogoutFlag = () => {
+    sessionStorage.setItem("manualLogout", "true");
+    setTimeout(() => sessionStorage.removeItem("manualLogout"), 5000);
+};
+
+export const clearUserSession = () => {
+    removeSession("Token");
+    removeSession("User");
+    setLogoutFlag();
+};

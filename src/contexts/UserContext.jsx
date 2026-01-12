@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect } from "react";
-import { getSession, saveSession, removeSession } from "../session/Cookies";
+import { getSession, saveSession, clearUserSession } from "../session/Cookies";
 import { jwtDecode } from "jwt-decode";
 
 export const UserContext = createContext();
@@ -11,45 +11,42 @@ export function UserProvider({ children }) {
     const [authLoading, setAuthLoading] = useState(true);
 
     useEffect(() => {
-        const checkAuth = () => {
-            if (token) {
-                try {
-                    const decoded = jwtDecode(token);
-                    const nameClaim = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name";
-                    const roleClaim = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
+        if (!token) {
+            setAuthLoading(false);
+            return;
+        }
 
-                    setUser(decoded[nameClaim]);
-                    setRole(decoded[roleClaim]);
-                    
-                    saveSession("Token", token);
-                    saveSession("User", decoded[nameClaim]);
-                } catch {
-                    logout();
-                }
-            }
-            setAuthLoading(false); 
-        };
+        try {
+            const decoded = jwtDecode(token);
+            const name = decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"];
+            const userRole = decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
 
-        checkAuth();
+            setUser(name);
+            setRole(userRole);
+            
+            saveSession("Token", token);
+            saveSession("User", name);
+        } catch (err) {
+            logout(); 
+        } finally {
+            setAuthLoading(false);
+        }
     }, [token]);
 
-    const login = (token) => {
-      setToken(token)
-    }
+    const login = (newToken) => setToken(newToken);
 
     const logout = () => {
+        clearUserSession(); 
         setToken(null);
         setUser(null);
         setRole(null);
-        removeSession("Token")
-        removeSession("User")
     };
 
     const isAdmin = role === "Admin";
 
-  return (
-    <UserContext.Provider value={{ token, user, role, isAdmin, authLoading, login, logout }}>
-      {children}
-    </UserContext.Provider>
-  );
+    return (
+        <UserContext.Provider value={{ token, user, role, isAdmin, authLoading, login, logout }}>
+            {children}
+        </UserContext.Provider>
+    );
 }

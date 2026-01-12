@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 
-export default function AuthForm({ type, onSubmit, message, clearMessage }) {
+export default function AuthForm({ type, onSubmit, message, isWarning, clearMessage }) {
   const [formData, setFormData] = useState({
     username : "",
     email: "",
@@ -20,6 +20,17 @@ export default function AuthForm({ type, onSubmit, message, clearMessage }) {
     e.preventDefault();
     onSubmit(formData);
   };
+
+  const getMessageStyles = () => {
+  if (!message) return "";
+  if (message.includes("successful") || message.includes("✅")) {
+    return "bg-green-500/10 border border-green-500/50 text-green-400";
+  }
+  if (isWarning) {
+    return "bg-amber-500/10 border border-amber-500/50 text-amber-400";
+  }
+  return "bg-red-500/10 border border-red-500/50 text-red-400";
+};
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-green-900 via-gray-900 to-black px-4">
@@ -81,11 +92,7 @@ export default function AuthForm({ type, onSubmit, message, clearMessage }) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.3 }}
-              className={`px-4 py-2 rounded mb-6 text-center text-sm ${
-                message.includes("successful")
-                  ? "bg-green-50 border border-green-500 text-green-800"
-                  : "bg-red-50 border border-red-500 text-red-800"
-              }`}
+              className={`px-4 py-2 rounded mb-6 text-center text-sm ${getMessageStyles()}`}
             >
               {message}
             </motion.div>

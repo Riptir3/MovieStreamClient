@@ -8,11 +8,13 @@ import AdminMoviesPage from "./pages/AdminMoviePage"
 import ProtectedRoute from "./components/ProtectedRoute"
 import PublicRoute from "./components/PublicRoutes"
 import AdminRoute from "./components/AdminRoute"
+import NotFoundPage from "./pages/NotFoundPage";
 
 function App() {
   return (
     <Router>
       <Routes>
+        
         <Route element={<AdminRoute/>}>
           <Route path="/admin" element={<AdminMoviesPage />}/>
         </Route>
@@ -24,6 +26,9 @@ function App() {
 
         <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
         <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
+
+        <Route path="*" element={<NotFoundPage/>}/>
+
       </Routes>
     </Router>
   );

@@ -1,20 +1,20 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { useContext } from "react";
-import { UserContext } from "../contexts/UserContext";
+import {getSession} from "../session/Cookies"
  
 export default function ProtectedRoute() {
-    const { token } = useContext(UserContext)
-    const location = useLocation();
+  const token = getSession("Token");
+  const location = useLocation();
+  const isManual = getSession("manualLogout");
 
-    if (!token) {
-        return (
-            <Navigate 
-                to="/login" 
-                replace 
-                state={{ from: location }} 
-            />
-        );
-    }
+  if (!token) {
+    return (
+      <Navigate 
+        to="/login" 
+        state={{ from: location, expired: !isManual }} 
+        replace 
+      />
+    );
+  }
 
     return <Outlet />;
 }
