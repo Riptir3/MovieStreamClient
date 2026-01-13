@@ -14,33 +14,40 @@ export default function LoginPage() {
 
 useEffect(() => {
   const params = new URLSearchParams(location.search);
+  
+  const fromPath = location.state?.from?.pathname || params.get("from");
+  
   const expiredFromState = location.state?.expired;
   const expiredFromUrl = params.get("expired") === "true";
 
-  if (expiredFromState || expiredFromUrl) {
+  if ((expiredFromState || expiredFromUrl) && fromPath) {
     setIsWarning(true);
     setMessage("Log in to continue.");
-  }
-}, [location]);
-
-  const handleLogin = async (data) => {
-    setMessage("");
-    setIsWarning(false);
-    
-    try {
-      const response = await loginUser(data.email, data.password);
-      setMessage("Login successful ✅");
-      
-      setTimeout(() => {
-        login(response.token);
-        const redirectTo = location.state?.from?.pathname || "/";
-        navigate(redirectTo, { replace: true });
-      }, 1000);
-
-    } catch (err) {
-      setMessage(err);
+  
+    if (params.get("expired")) {
+      navigate(location.pathname, { replace: true, state: { from: { pathname: fromPath } } });
     }
-  };
+  }
+}, [location, navigate]);
+
+const handleLogin = async (data) => {
+  setMessage("");
+  setIsWarning(false);
+  try {
+    const response = await loginUser(data.email, data.password);
+    setMessage("Login successful ✅");
+    
+    setTimeout(() => {
+      login(response.token);
+      const params = new URLSearchParams(location.search);
+      const redirectTo = location.state?.from?.pathname || params.get("from") || "/";
+      
+      navigate(redirectTo, { replace: true });
+    }, 1000);
+  } catch (err) {
+    setMessage(err);
+  }
+};
 
   return (
       <AuthForm

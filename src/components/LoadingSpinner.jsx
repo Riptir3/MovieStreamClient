@@ -6,7 +6,7 @@ export default function LoadingSpinner() {
         <div className="absolute top-0 left-0 w-16 h-16 border-4 border-transparent border-b-indigo-500 rounded-full animate-[spin_2s_linear_infinite]"></div>
       </div>
       <p className="mt-4 text-green-400 font-medium animate-pulse tracking-widest uppercase text-xs">
-        Loading movies
+        Loading...
       </p>
     </div>
   );

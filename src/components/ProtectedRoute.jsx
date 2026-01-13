@@ -1,21 +1,20 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-import {getSession} from "../session/Cookies"
- 
-export default function ProtectedRoute() {
-  const token = getSession("Token");
-  const location = useLocation();
-  const isManual = getSession("manualLogout");
+import { useContext } from "react";
+import { UserContext } from "../contexts/UserContext";
+import LoadingSpinner from "./LoadingSpinner"
 
-  if (!token) {
-    return (
-      <Navigate 
-        to="/login" 
-        state={{ from: location, expired: !isManual }} 
-        replace 
-      />
-    );
+export default function ProtectedRoute() {
+  const { token, authLoading } = useContext(UserContext);
+  const location = useLocation();
+
+  if (authLoading) {
+    return <LoadingSpinner />; 
   }
 
-    return <Outlet />;
-}
+  if (!token) {
+    const isManual = sessionStorage.getItem("manualLogout") === "true";
+    return <Navigate to="/login" state={{ from: location, expired: !isManual }} replace />;
+  }
 
+  return <Outlet />;
+}

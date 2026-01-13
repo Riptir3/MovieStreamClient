@@ -29,7 +29,7 @@ Axios.interceptors.response.use(
       
       if (!window.location.pathname.includes("/login")) {
         const currentPath = window.location.pathname;
-        window.location.href = `/login?expired=true&redirect=${currentPath}`;
+        window.location.href = `/login?expired=true&from=${encodeURIComponent(currentPath)}`;
       }
     } 
     else if (error.response) {
