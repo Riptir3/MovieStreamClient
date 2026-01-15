@@ -6,11 +6,11 @@ export default function MovieTable({ movies, onEdit, onDelete }) {
       <table className="w-full text-left border-collapse">
         <thead>
           <tr className="bg-gray-800/50 text-gray-400 uppercase text-xs">
-            <th className="p-4">Film címe</th>
-            <th className="p-4">Év</th>
-            <th className="p-4">Rendező</th>
-            <th className="p-4 w-1/3">Leírás</th>
-            <th className="p-4 text-center">Műveletek</th>
+            <th className="p-4">Title</th>
+            <th className="p-4">Year</th>
+            <th className="p-4">Director</th>
+            <th className="p-4 w-1/3">Description</th>
+            <th className="p-4 text-center">Actions</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-700">

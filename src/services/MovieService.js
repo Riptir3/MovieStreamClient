@@ -15,8 +15,8 @@ export const createMovie = async (data) =>{
     return response.data;
 }
 
-export const updateMovie = async (data) =>{
-    const response = await Axios.put(`/movie`,data);
+export const updateMovie = async (id,data) =>{
+    const response = await Axios.put(`/movie/${id}`,data);
     return response.data;
 }
 

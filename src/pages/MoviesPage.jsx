@@ -1,4 +1,4 @@
-import { useState, useContext, useMemo } from "react";
+import { useState, useContext, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../contexts/UserContext";
 import { useMovies } from "../hooks/useMovies";
@@ -24,6 +24,10 @@ export default function MoviesPage() {
 
   const moviesPerPage = 20;
   const categories = ["Action", "Comedy", "Drama", "Horror", "Sci-Fi"];
+
+  useEffect(() => {
+  setCurrentPage(1);
+}, [search, categoryFilter]);
 
   const filteredMovies = useMemo(() => {
     return movies.filter((m) => {

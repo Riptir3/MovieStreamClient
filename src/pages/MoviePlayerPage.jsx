@@ -59,6 +59,7 @@ export default function MoviePlayerPage() {
     }
   };
 
+
   if (loading) return <LoadingSpinner />;
   if (errorMessage) return <ErrorMessage message={errorMessage} onRetry={fetchMovie} />;
 
@@ -128,6 +129,8 @@ export default function MoviePlayerPage() {
             <textarea
               value={reportComment}
               onChange={(e) => setReportComment(e.target.value)}
+              required
+              maxLength={100}
               className="w-full p-4 h-32 rounded-xl bg-gray-800 text-white border border-gray-700 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none transition-all resize-none"
               placeholder="What's the problem?"
             ></textarea>

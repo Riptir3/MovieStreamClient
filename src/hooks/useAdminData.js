@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { 
-  getAllMovie, getActiveMovieRequest, getActiveMovieReport,
-  deleteMovie, updateMovieRequest, updateMovieReport 
+  getAllMovie, getActiveMovieRequest, getActiveMovieReport 
 } from "../services/MovieService";
 
 export const useAdminData = () => {
@@ -22,7 +21,7 @@ export const useAdminData = () => {
       setRequests(reqRes);
       setReports(reportRes);
     } catch (err) {
-      console.error("Hiba az adatok letöltésekor:", err);
+      console.error("Issue:", err);
     } finally {
       setLoading(false);
     }
