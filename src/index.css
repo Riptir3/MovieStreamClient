@@ -14,3 +14,14 @@ input:-webkit-autofill:focus {
   transition: background-color 9999s ease-in-out 0s;
   font-family: inherit !important; 
 }
+
+.typing-cursor::after {
+  content: "▊";
+  animation: blink 1s step-start infinite;
+  margin-left: 2px;
+  color: #3b82f6; 
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}

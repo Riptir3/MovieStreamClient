@@ -11,6 +11,7 @@ import Pagination from "../components/Pagination";
 import RequestMovieModal from "../components/RequestMovieModal";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
+import ChatAssistant from "../components/ChatAssistant";
 
 export default function MoviesPage() {
   const { logout, user } = useContext(UserContext);
@@ -99,6 +100,8 @@ export default function MoviesPage() {
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
       />
+
+      <ChatAssistant />
 
       {isRequestModalOpen && (
         <RequestMovieModal onClose={() => setIsRequestModalOpen(false)} />
