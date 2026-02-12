@@ -36,33 +36,40 @@ const sendMessage = async () => {
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
 
-        while (true) {
-            const { value, done } = await reader.read();
-            if (done) {
-                reader.releaseLock(); 
-                break;
-            }
+    while (true) {
+    const { value, done } = await reader.read();
+    if (done) {
+        reader.releaseLock(); 
+        break;
+    }
 
-            const rawChunk = decoder.decode(value, { stream: true });
-            const lines = rawChunk.split('\n');
+    const rawChunk = decoder.decode(value, { stream: true });
+    const lines = rawChunk.split('\n');
 
-            lines.forEach(line => {
-                if (line.startsWith('data: ')) {
-                    const content = line.replace('data: ', '').replace(/\\n/g, '\n');
-                    
-                    setMessages(prev => {
-                        const newMessages = [...prev];
-                        const lastMsgIndex = newMessages.length - 1;
-                        if (newMessages[lastMsgIndex].role === 'ai') {
-                            newMessages[lastMsgIndex].text += content;
-                        }
-                        return newMessages;
-                    });
+    lines.forEach(line => {
+        if (line.startsWith('data: ')) {
+            const content = line.replace('data: ', '').replace(/\\n/g, '\n');
+            
+            setMessages(prev => {
+                const newMessages = [...prev];
+                const lastIndex = newMessages.length - 1;
+                
+                if (newMessages[lastIndex].role === 'ai') {
+                    const currentText = newMessages[lastIndex].text;
+                    if (!currentText.endsWith(content)) {
+                        newMessages[lastIndex] = { 
+                            ...newMessages[lastIndex], 
+                            text: currentText + content 
+                        };
+                    }
                 }
+                return newMessages;
             });
         }
+      });
+    }
     } catch (err) {
-        console.error("Stream hiba:", err);
+        console.error("Stream fail:", err);
         setMessages(prev => [...prev, { role: 'ai', text: 'Hiba történt a válaszadás során.' }]);
     } finally {
         setIsTyping(false);
@@ -81,7 +88,24 @@ const sendMessage = async () => {
             {messages.map((msg, i) => (
               <div key={i} className={`${msg.role === 'user' ? 'text-right' : 'text-left'}`}>
                 <div className={`inline-block p-2 rounded-lg ${msg.role === 'user' ? 'bg-blue-500' : 'bg-gray-700'} ${isTyping && i === messages.length - 1 ? 'typing-cursor' : ''}`}>
-                    <ReactMarkdown>{msg.text}</ReactMarkdown>
+                  <ReactMarkdown 
+                    components={{
+                      a: ({node, ...props}) => {
+                        return (
+                          <a 
+                            {...props} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="text-blue-400 underline font-bold hover:text-blue-300 transition-colors"
+                          >
+                            {props.children}
+                          </a>
+                        );
+                      }
+                    }}
+                  >
+                    {msg.text}
+                  </ReactMarkdown>
                 </div>
               </div>
             ))}
@@ -92,7 +116,7 @@ const sendMessage = async () => {
               className="bg-gray-900 text-xs flex-1 p-2 outline-none rounded-l"
               value={input} onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-              placeholder="Írj valamit..."
+              placeholder="Ask anything..."
             />
             <button onClick={sendMessage} className="bg-blue-600 px-3 rounded-r text-xs">Send</button>
           </div>
